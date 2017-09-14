@@ -1,71 +1,140 @@
-import java.awt.*;
+/*
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ *   - Neither the name of Oracle or the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */ 
 
-import java.awt.event.*;
+// package components;
+
+/* HtmlDemo.java needs no other files. */
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.border.*;
+public class Test extends JPanel
+                      implements ActionListener {
+    JLabel theLabel;
+    JTextArea htmlTextArea;
 
-import javax.swing.text.AttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
+    public Test() {
+        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-public class Test extends JFrame
-{
-    private JPanel topPanel;
-    private JTextPane tPane;
+        String initialText = "<html>\n" +
+                "Color and font test:\n" +
+                "<ul>\n" +
+                "<li><font color=red>red</font>\n" +
+                "<li><font color=blue>blue</font>\n" +
+                "<li><font color=green>green</font>\n" +
+                "<li><font size=-2>small</font>\n" +
+                "<li><font size=+2>large</font>\n" +
+                "<li><i>italic</i>\n" +
+                "<li><b>bold</b>\n" +
+                "</ul>\n";
 
-    public Test()
-    {
-        topPanel = new JPanel();        
+        htmlTextArea = new JTextArea(10, 20);
+        htmlTextArea.setText(initialText);
+        JScrollPane scrollPane = new JScrollPane(htmlTextArea);
 
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);            
+        JButton changeTheLabel = new JButton("Change the label");
+        changeTheLabel.setMnemonic(KeyEvent.VK_C);
+        changeTheLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        changeTheLabel.addActionListener(this);
 
-        EmptyBorder eb = new EmptyBorder(new Insets(10, 10, 10, 10));
+        theLabel = new JLabel(initialText) {
+            public Dimension getPreferredSize() {
+                return new Dimension(200, 200);
+            }
+            public Dimension getMinimumSize() {
+                return new Dimension(200, 200);
+            }
+            public Dimension getMaximumSize() {
+                return new Dimension(200, 200);
+            }
+        };
+        theLabel.setVerticalAlignment(SwingConstants.CENTER);
+        theLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        tPane = new JTextPane();                
-        tPane.setBorder(eb);
-        //tPane.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-        tPane.setMargin(new Insets(5, 5, 5, 5));
+        JPanel leftPanel = new JPanel();
+        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
+        leftPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(
+                    "Edit the HTML, then click the button"),
+                BorderFactory.createEmptyBorder(10,10,10,10)));
+        leftPanel.add(scrollPane);
+        leftPanel.add(Box.createRigidArea(new Dimension(0,10)));
+        leftPanel.add(changeTheLabel);
 
-        topPanel.add(tPane);
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
+        rightPanel.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createTitledBorder("A label with HTML"),
+                        BorderFactory.createEmptyBorder(10,10,10,10)));
+        rightPanel.add(theLabel);
 
-        appendToPane(tPane, "My Name is Too Good.\n", Color.RED);
-        appendToPane(tPane, "I wish I could be ONE of THE BEST on ", Color.BLUE);
-        appendToPane(tPane, "Stack", Color.DARK_GRAY);
-        appendToPane(tPane, "Over", Color.MAGENTA);
-        appendToPane(tPane, "flow", Color.ORANGE);
-
-        getContentPane().add(topPanel);
-
-        pack();
-        setVisible(true);   
+        setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        add(leftPanel);
+        add(Box.createRigidArea(new Dimension(10,0)));
+        add(rightPanel);
     }
 
-    private void appendToPane(JTextPane tp, String msg, Color c)
-    {
-        StyleContext sc = StyleContext.getDefaultStyleContext();
-        AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);
-
-        aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
-        aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
-
-        int len = tp.getDocument().getLength();
-        tp.setCaretPosition(len);
-        tp.setCharacterAttributes(aset, false);
-        tp.replaceSelection(msg);
+    //React to the user pushing the Change button.
+    public void actionPerformed(ActionEvent e) {
+        theLabel.setText(htmlTextArea.getText());
     }
 
-    public static void main(String... args)
-    {
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    new Test();
-                }
-            });
+    /**
+     * Create the GUI and show it.  For thread safety,
+     * this method should be invoked from the
+     * event dispatch thread.
+     */
+    private static void createAndShowGUI() {
+        //Create and set up the window.
+        JFrame frame = new JFrame("Test");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        //Add content to the window.
+        frame.add(new Test());
+
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        //Schedule a job for the event dispatch thread:
+        //creating and showing this application's GUI.
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                //Turn off metal's use of bold fonts
+	        UIManager.put("swing.boldMetal", Boolean.FALSE);
+	        createAndShowGUI();
+            }
+        });
     }
 }
