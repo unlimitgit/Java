@@ -37,6 +37,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.accessibility.AccessibleText;
+
 public class Test extends JPanel
                       implements ActionListener {
     JLabel theLabel;
@@ -101,7 +105,64 @@ public class Test extends JPanel
         add(leftPanel);
         add(Box.createRigidArea(new Dimension(10,0)));
         add(rightPanel);
+		
+		// Extract the string contents, and open the website page included by '[' ']'
+		 theLabel.addMouseListener(new MouseAdapter() {
+			 @Override
+            public void mouseClicked(MouseEvent e) {
+			
+            if (e.getClickCount() != 2) {
+               return;
+            }
+			
+                AccessibleText accessibleText =
+                        theLabel.getAccessibleContext().getAccessibleText();
+                Point p = e.getPoint();
+				System.out.println("X = " + p.x + ", Y = " + p.y);
+				 String labelText = theLabel.getText();
+                int index = accessibleText.getIndexAtPoint(p);
+				
+				System.out.println("index = " + index);
+				System.out.println("text = " + labelText.length());
+				
+				String partOfText = labelText.substring(0, index);
+				
+				System.out.println(partOfText);
+				
+				
+				// System.out.println(labelText);
+				/*
+                if (index >= 0) {
+                    // The index is with respect to the actually displayed
+                    // characters rather than the entire HTML string, so we
+                    // must add six to skip over "<html>", which is part of
+                    // the labelText String but not actually displayed on
+                    // the screen. Otherwise, the substrings could end up
+                    // something like "tml>C:\aaa"
+                    index += 6;
+
+                    // Strangely, in my testing, index was a one-based index
+                    // (for example, mousing over the 'C' resulted in an
+                    // index of 1), but this makes getting the part of the
+                    // string up to that character easier.
+                    String partOfText = labelText.substring(0, index);
+
+                    // Display for demonstration purposes; you could also
+                    // figure out how to highlight it or use the string or
+                    // just the index in some other way to suit your needs.
+                    // For example, you might want to round the index to
+                    // certain values so you will line up with groups of
+                    // characters, only ever having things like
+                    // "C:\aaa\bbb", and never "C:\aaa\b"
+                    System.out.println(partOfText);
+                }
+				*/
+            }
+        });
+	   
     }
+	
+	
 
     //React to the user pushing the Change button.
     public void actionPerformed(ActionEvent e) {
