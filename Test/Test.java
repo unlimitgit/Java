@@ -31,142 +31,290 @@
 
 // package components;
 
-/* HtmlDemo.java needs no other files. */
+/*
+ * Test.java requires the following files:
+ *   TestHelp.html (which references images/dukeWaveRed.gif)
+ *   images/Pig.gif
+ *   images/sound.gif
+ */
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import javax.swing.text.*;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.accessibility.AccessibleText;
+import java.awt.*;              //for layout managers and more
+import java.awt.event.*;        //for action events
+
+import java.net.URL;
+import java.io.IOException;
 
 public class Test extends JPanel
-                      implements ActionListener {
-    JLabel theLabel;
-    JTextArea htmlTextArea;
+                             implements ActionListener {
+    private String newline = "\n";
+    protected static final String textFieldString = "JTextField";
+    protected static final String passwordFieldString = "JPasswordField";
+    protected static final String ftfString = "JFormattedTextField";
+    protected static final String buttonString = "JButton";
+
+    protected JLabel actionLabel;
 
     public Test() {
-        setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+        setLayout(new BorderLayout());
 
-        String initialText = "<html>\n" +
-                "Color and font test:\n" +
-                "<ul>\n" +
-                "<li><font color=red>red</font>\n" +
-                "<li><font color=blue>blue</font>\n" +
-                "<li><font color=green>green</font>\n" +
-                "<li><font size=-2>small</font>\n" +
-                "<li><font size=+2>large</font>\n" +
-                "<li><i>italic</i>\n" +
-                "<li><b>bold</b>\n" +
-                "</ul>\n";
+        //Create a regular text field.
+        JTextField textField = new JTextField(10);
+        textField.setActionCommand(textFieldString);
+        textField.addActionListener(this);
 
-        htmlTextArea = new JTextArea(10, 20);
-        htmlTextArea.setText(initialText);
-        JScrollPane scrollPane = new JScrollPane(htmlTextArea);
+        //Create a password field.
+        JPasswordField passwordField = new JPasswordField(10);
+        passwordField.setActionCommand(passwordFieldString);
+        passwordField.addActionListener(this);
 
-        JButton changeTheLabel = new JButton("Change the label");
-        changeTheLabel.setMnemonic(KeyEvent.VK_C);
-        changeTheLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        changeTheLabel.addActionListener(this);
+        //Create a formatted text field.
+        JFormattedTextField ftf = new JFormattedTextField(
+                java.util.Calendar.getInstance().getTime());
+        ftf.setActionCommand(textFieldString);
+        ftf.addActionListener(this);
 
-        theLabel = new JLabel(initialText) {
-            public Dimension getPreferredSize() {
-                return new Dimension(200, 200);
-            }
-            public Dimension getMinimumSize() {
-                return new Dimension(200, 200);
-            }
-            public Dimension getMaximumSize() {
-                return new Dimension(200, 200);
-            }
-        };
-        theLabel.setVerticalAlignment(SwingConstants.CENTER);
-        theLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        //Create some labels for the fields.
+        JLabel textFieldLabel = new JLabel(textFieldString + ": ");
+        textFieldLabel.setLabelFor(textField);
+        JLabel passwordFieldLabel = new JLabel(passwordFieldString + ": ");
+        passwordFieldLabel.setLabelFor(passwordField);
+        JLabel ftfLabel = new JLabel(ftfString + ": ");
+        ftfLabel.setLabelFor(ftf);
 
-        JPanel leftPanel = new JPanel();
-        leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.PAGE_AXIS));
-        leftPanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createTitledBorder(
-                    "Edit the HTML, then click the button"),
-                BorderFactory.createEmptyBorder(10,10,10,10)));
-        leftPanel.add(scrollPane);
-        leftPanel.add(Box.createRigidArea(new Dimension(0,10)));
-        leftPanel.add(changeTheLabel);
+        //Create a label to put messages during an action event.
+        actionLabel = new JLabel("Type text in a field and press Enter.");
+        actionLabel.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
-        JPanel rightPanel = new JPanel();
-        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.PAGE_AXIS));
-        rightPanel.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createTitledBorder("A label with HTML"),
-                        BorderFactory.createEmptyBorder(10,10,10,10)));
-        rightPanel.add(theLabel);
+        //Lay out the text controls and the labels.
+        JPanel textControlsPane = new JPanel();
+        GridBagLayout gridbag = new GridBagLayout();
+        GridBagConstraints c = new GridBagConstraints();
 
-        setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-        add(leftPanel);
-        add(Box.createRigidArea(new Dimension(10,0)));
-        add(rightPanel);
-		
-		// Extract the string contents, and open the website page included by '[' ']'
-		 theLabel.addMouseListener(new MouseAdapter() {
-			 @Override
-            public void mouseClicked(MouseEvent e) {
-			
-            if (e.getClickCount() != 2) {
-               return;
-            }
-			
-                AccessibleText accessibleText =
-                        theLabel.getAccessibleContext().getAccessibleText();
-                Point p = e.getPoint();
-				System.out.println("X = " + p.x + ", Y = " + p.y);
-				 String labelText = theLabel.getText();
-                int index = accessibleText.getIndexAtPoint(p);
-				
-				System.out.println("index = " + index);
-				System.out.println("text = " + labelText.length());
-				
-				String partOfText = labelText.substring(0, index);
-				
-				System.out.println(partOfText);
-				
-				
-				// System.out.println(labelText);
-				/*
-                if (index >= 0) {
-                    // The index is with respect to the actually displayed
-                    // characters rather than the entire HTML string, so we
-                    // must add six to skip over "<html>", which is part of
-                    // the labelText String but not actually displayed on
-                    // the screen. Otherwise, the substrings could end up
-                    // something like "tml>C:\aaa"
-                    index += 6;
+        textControlsPane.setLayout(gridbag);
 
-                    // Strangely, in my testing, index was a one-based index
-                    // (for example, mousing over the 'C' resulted in an
-                    // index of 1), but this makes getting the part of the
-                    // string up to that character easier.
-                    String partOfText = labelText.substring(0, index);
+        JLabel[] labels = {textFieldLabel, passwordFieldLabel, ftfLabel};
+        JTextField[] textFields = {textField, passwordField, ftf};
+        addLabelTextRows(labels, textFields, gridbag, textControlsPane);
 
-                    // Display for demonstration purposes; you could also
-                    // figure out how to highlight it or use the string or
-                    // just the index in some other way to suit your needs.
-                    // For example, you might want to round the index to
-                    // certain values so you will line up with groups of
-                    // characters, only ever having things like
-                    // "C:\aaa\bbb", and never "C:\aaa\b"
-                    System.out.println(partOfText);
-                }
-				*/
-            }
-        });
-	   
+        c.gridwidth = GridBagConstraints.REMAINDER; //last
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1.0;
+        textControlsPane.add(actionLabel, c);
+        textControlsPane.setBorder(
+                BorderFactory.createCompoundBorder(
+                                BorderFactory.createTitledBorder("Text Fields"),
+                                BorderFactory.createEmptyBorder(5,5,5,5)));
+
+        //Create a text area.
+        JTextArea textArea = new JTextArea(
+                "This is an editable JTextArea. " +
+                "A text area is a \"plain\" text component, " +
+                "which means that although it can display text " +
+                "in any font, all of the text is in the same font."
+        );
+        textArea.setFont(new Font("Serif", Font.ITALIC, 16));
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        JScrollPane areaScrollPane = new JScrollPane(textArea);
+        areaScrollPane.setVerticalScrollBarPolicy(
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        areaScrollPane.setPreferredSize(new Dimension(250, 250));
+        areaScrollPane.setBorder(
+            BorderFactory.createCompoundBorder(
+                BorderFactory.createCompoundBorder(
+                                BorderFactory.createTitledBorder("Plain Text"),
+                                BorderFactory.createEmptyBorder(5,5,5,5)),
+                areaScrollPane.getBorder()));
+
+        //Create an editor pane.
+        JEditorPane editorPane = createEditorPane();
+        JScrollPane editorScrollPane = new JScrollPane(editorPane);
+        editorScrollPane.setVerticalScrollBarPolicy(
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        editorScrollPane.setPreferredSize(new Dimension(250, 145));
+        editorScrollPane.setMinimumSize(new Dimension(10, 10));
+
+        //Create a text pane.
+        JTextPane textPane = createTextPane();
+        JScrollPane paneScrollPane = new JScrollPane(textPane);
+        paneScrollPane.setVerticalScrollBarPolicy(
+                        JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        paneScrollPane.setPreferredSize(new Dimension(250, 155));
+        paneScrollPane.setMinimumSize(new Dimension(10, 10));
+
+        //Put the editor pane and the text pane in a split pane.
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                              editorScrollPane,
+                                              paneScrollPane);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setResizeWeight(0.5);
+        JPanel rightPane = new JPanel(new GridLayout(1,0));
+        rightPane.add(splitPane);
+        rightPane.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createTitledBorder("Styled Text"),
+                        BorderFactory.createEmptyBorder(5,5,5,5)));
+
+
+        //Put everything together.
+        JPanel leftPane = new JPanel(new BorderLayout());
+        leftPane.add(textControlsPane, 
+                     BorderLayout.PAGE_START);
+        leftPane.add(areaScrollPane,
+                     BorderLayout.CENTER);
+
+        add(leftPane, BorderLayout.LINE_START);
+        add(rightPane, BorderLayout.LINE_END);
     }
-	
-	
 
-    //React to the user pushing the Change button.
+    private void addLabelTextRows(JLabel[] labels,
+                                  JTextField[] textFields,
+                                  GridBagLayout gridbag,
+                                  Container container) {
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.EAST;
+        int numLabels = labels.length;
+
+        for (int i = 0; i < numLabels; i++) {
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.fill = GridBagConstraints.NONE;      //reset to default
+            c.weightx = 0.0;                       //reset to default
+            container.add(labels[i], c);
+
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            container.add(textFields[i], c);
+        }
+    }
+
     public void actionPerformed(ActionEvent e) {
-        theLabel.setText(htmlTextArea.getText());
+        String prefix = "You typed \"";
+        if (textFieldString.equals(e.getActionCommand())) {
+            JTextField source = (JTextField)e.getSource();
+            actionLabel.setText(prefix + source.getText() + "\"");
+        } else if (passwordFieldString.equals(e.getActionCommand())) {
+            JPasswordField source = (JPasswordField)e.getSource();
+            actionLabel.setText(prefix + new String(source.getPassword())
+                                + "\"");
+        } else if (buttonString.equals(e.getActionCommand())) {
+            Toolkit.getDefaultToolkit().beep();
+        }
+    }
+
+    private JEditorPane createEditorPane() {
+        JEditorPane editorPane = new JEditorPane();
+        editorPane.setEditable(false);
+        java.net.URL helpURL = Test.class.getResource(
+                                        "TestHelp.html");
+        if (helpURL != null) {
+            try {
+                editorPane.setPage(helpURL);
+            } catch (IOException e) {
+                System.err.println("Attempted to read a bad URL: " + helpURL);
+            }
+        } else {
+            System.err.println("Couldn't find file: TextSampleDemoHelp.html");
+        }
+
+        return editorPane;
+    }
+
+    private JTextPane createTextPane() {
+        String[] initString =
+                { "This is an editable JTextPane, ",            //regular
+                  "another ",                                   //italic
+                  "styled ",                                    //bold
+                  "text ",                                      //small
+                  "component, ",                                //large
+                  "which supports embedded components..." + newline,//regular
+                  " " + newline,                                //button
+                  "...and embedded icons..." + newline,         //regular
+                  " ",                                          //icon
+                  newline + "JTextPane is a subclass of JEditorPane that " +
+                    "uses a StyledEditorKit and StyledDocument, and provides " +
+                    "cover methods for interacting with those objects."
+                 };
+
+        String[] initStyles =
+                { "regular", "italic", "bold", "small", "large",
+                  "regular", "button", "regular", "icon",
+                  "regular"
+                };
+
+        JTextPane textPane = new JTextPane();
+        StyledDocument doc = textPane.getStyledDocument();
+        addStylesToDocument(doc);
+
+        try {
+            for (int i=0; i < initString.length; i++) {
+                doc.insertString(doc.getLength(), initString[i],
+                                 doc.getStyle(initStyles[i]));
+            }
+        } catch (BadLocationException ble) {
+            System.err.println("Couldn't insert initial text into text pane.");
+        }
+
+        return textPane;
+    }
+
+    protected void addStylesToDocument(StyledDocument doc) {
+        //Initialize some styles.
+        Style def = StyleContext.getDefaultStyleContext().
+                        getStyle(StyleContext.DEFAULT_STYLE);
+
+        Style regular = doc.addStyle("regular", def);
+        StyleConstants.setFontFamily(def, "SansSerif");
+
+        Style s = doc.addStyle("italic", regular);
+        StyleConstants.setItalic(s, true);
+
+        s = doc.addStyle("bold", regular);
+        StyleConstants.setBold(s, true);
+
+        s = doc.addStyle("small", regular);
+        StyleConstants.setFontSize(s, 10);
+
+        s = doc.addStyle("large", regular);
+        StyleConstants.setFontSize(s, 16);
+
+        s = doc.addStyle("icon", regular);
+        StyleConstants.setAlignment(s, StyleConstants.ALIGN_CENTER);
+        ImageIcon pigIcon = createImageIcon("images/Pig.gif",
+                                            "a cute pig");
+        if (pigIcon != null) {
+            StyleConstants.setIcon(s, pigIcon);
+        }
+
+        s = doc.addStyle("button", regular);
+        StyleConstants.setAlignment(s, StyleConstants.ALIGN_CENTER);
+        ImageIcon soundIcon = createImageIcon("images/sound.gif",
+                                              "sound icon");
+        JButton button = new JButton();
+        if (soundIcon != null) {
+            button.setIcon(soundIcon);
+        } else {
+            button.setText("BEEP");
+        }
+        button.setCursor(Cursor.getDefaultCursor());
+        button.setMargin(new Insets(0,0,0,0));
+        button.setActionCommand(buttonString);
+        button.addActionListener(this);
+        StyleConstants.setComponent(s, button);
+    }
+
+    /** Returns an ImageIcon, or null if the path was invalid. */
+    protected static ImageIcon createImageIcon(String path,
+                                               String description) {
+        java.net.URL imgURL = Test.class.getResource(path);
+        if (imgURL != null) {
+            return new ImageIcon(imgURL, description);
+        } else {
+            System.err.println("Couldn't find file: " + path);
+            return null;
+        }
     }
 
     /**
@@ -188,13 +336,13 @@ public class Test extends JPanel
     }
 
     public static void main(String[] args) {
-        //Schedule a job for the event dispatch thread:
+        //Schedule a job for the event dispatching thread:
         //creating and showing this application's GUI.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                //Turn off metal's use of bold fonts
-	        UIManager.put("swing.boldMetal", Boolean.FALSE);
-	        createAndShowGUI();
+                 //Turn off metal's use of bold fonts
+		UIManager.put("swing.boldMetal", Boolean.FALSE);
+		createAndShowGUI();
             }
         });
     }
