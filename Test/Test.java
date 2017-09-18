@@ -156,6 +156,31 @@ public class Test extends JPanel
         rightPane.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createTitledBorder("Styled Text"),
                         BorderFactory.createEmptyBorder(5,5,5,5)));
+						
+		// Extract the string contents, and open the website page included by '[' ']'
+		textPane.addMouseListener(new MouseAdapter() {
+         @Override
+         public void mouseClicked(MouseEvent e) {
+            if (e.getButton() != MouseEvent.BUTTON1) {
+               return;
+            }
+            if (e.getClickCount() != 2) {
+               return;
+            }
+
+            int offset = textPane.viewToModel(e.getPoint());
+
+            try {
+               int rowStart = Utilities.getRowStart(textPane, offset);
+               int rowEnd = Utilities.getRowEnd(textPane, offset);
+               String selectedLine = textPane.getText().substring(rowStart, rowEnd);
+               System.out.println(selectedLine);			   
+            } catch (BadLocationException e1) {
+               e1.printStackTrace();
+            }
+
+         }
+      });
 
 
         //Put everything together.
