@@ -7,13 +7,13 @@ import java.awt.event.MouseEvent;
 
 public class Test  {
 
-    public Test() throws BadLocationException {
-
+    public Test() throws BadLocationException {	
+		String buttonDisplay = "Save";
         JFrame frame = new JFrame();
         DefaultStyledDocument document = new DefaultStyledDocument();
         JTextPane pane = new JTextPane(document);
         JPanel mainPanel = new JPanel();
-        JButton button = new JButton("Button");
+        JButton button = new JButton(buttonDisplay);
         button.setPreferredSize(new Dimension(100, 40));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pane.setPreferredSize(new Dimension(200, 200));
@@ -71,7 +71,14 @@ public class Test  {
 		button.addActionListener(new java.awt.event.ActionListener(){ 
 		  public void actionPerformed(java.awt.event.ActionEvent evt) { 	  
 			//int lines = pane.getLineCount();
-			pane.setEditable(false);
+			if (buttonDisplay == "Save"){
+				buttonDisplay = "Edit";
+				pane.setEditable(false);
+			} else {
+				buttonDisplay = "Save";
+				pane.setEditable(true);
+			}
+			
 			try {
 			System.out.println(pane.getDocument().getText(0, pane.getDocument().getLength()) );
 			int i = pane.getDocument().getLength();
