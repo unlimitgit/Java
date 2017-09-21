@@ -67,6 +67,21 @@ public class Test  {
         StyleConstants.setForeground(style, Color.BLACK);
         // add some data to the document
         document.insertString(0, "One: success \n", style);
+		
+		button.addActionListener(new java.awt.event.ActionListener(){ 
+		  public void actionPerformed(java.awt.event.ActionEvent evt) { 	  
+			//int lines = pane.getLineCount();
+			try {
+			System.out.println(pane.getDocument().getText(0, pane.getDocument().getLength()) );
+			int i = pane.getDocument().getLength();
+			System.out.println(i);
+			} 
+			catch (BadLocationException ee) {
+				//handle exception
+			}	
+	
+			  } 
+		} );
 
 
         //  StyleConstants.setForeground(style, Color.blue);
