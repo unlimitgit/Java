@@ -20,8 +20,17 @@ public class Test  {
         DefaultStyledDocument document = new DefaultStyledDocument();
         JTextPane pane = new JTextPane(document);
         JPanel mainPanel = new JPanel();
-        JButton button = new JButton("Save");
-        button.setPreferredSize(new Dimension(100, 40));
+        JButton buttonSaveEdit = new JButton("Save");
+		
+		GridLayout layout = new GridLayout(10,1);
+		mainPanel.setLayout(layout);
+		
+        buttonSaveEdit.setPreferredSize(new Dimension(100, 40));
+		JButton buttonLoad = new JButton("Load");
+		buttonLoad.setPreferredSize(new Dimension(100, 40));
+		buttonLoad.setMaximumSize(new Dimension(100, 40));
+		buttonLoad.setMinimumSize(new Dimension(100, 40));
+		
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         pane.setPreferredSize(new Dimension(200, 200));
 		JScrollPane paneScrollPane = new JScrollPane(pane);
@@ -29,9 +38,12 @@ public class Test  {
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         paneScrollPane.setPreferredSize(new Dimension(250, 155));
         paneScrollPane.setMinimumSize(new Dimension(10, 10));
-        mainPanel.add(button);
+        mainPanel.add(buttonSaveEdit);
+		mainPanel.add(buttonLoad);
         frame.getContentPane().add(paneScrollPane, BorderLayout.CENTER);
         frame.getContentPane().add(mainPanel, BorderLayout.WEST);
+		
+		
 		
 		// Extract the string contents, and open the website page included by '[' ']'
 		pane.addMouseListener(new MouseAdapter() {
@@ -65,9 +77,12 @@ public class Test  {
         // build a style
         Style style = context.addStyle("Test", null);
         // set some style properties
+		 StyleConstants.setFontSize(style, 20);
         StyleConstants.setForeground(style, Color.BLACK);
+		StyleConstants.setFontFamily(style, "Arial");
+		 //StyleConstants.setFont(style, "Arial");
         document.insertString(0, "Four: success \n", style);
-        StyleConstants.setForeground(style, Color.RED);
+        //StyleConstants.setForeground(style, Color.RED);
         document.insertString(0, "Three: error \n", style);
         //document.insertString(0, "Two: error \n", style);
 
@@ -75,17 +90,17 @@ public class Test  {
         // add some data to the document
        // document.insertString(0, "One: success \n", style);
 		
-		button.addActionListener(new java.awt.event.ActionListener(){ 
+		buttonSaveEdit.addActionListener(new java.awt.event.ActionListener(){ 
 		  public void actionPerformed(java.awt.event.ActionEvent evt) { 	  
 			//int lines = pane.getLineCount();
 			if (textEditable){
 				textEditable = false;
-				button.setText("Edit");
+				buttonSaveEdit.setText("Edit");
 				pane.setBackground(mygray);
 				pane.setEditable(false);
 			} else {
 				textEditable = true;
-				button.setText("Save");
+				buttonSaveEdit.setText("Save");
 				pane.setEditable(true);
 				pane.setBackground(Color.white);
 			}
@@ -128,6 +143,36 @@ public class Test  {
 	
 			  } 
 		} );
+		
+		 buttonLoad.addActionListener(new java.awt.event.ActionListener(){ 
+		  public void actionPerformed(java.awt.event.ActionEvent evt) { 	  
+				FileDialog fd = new FileDialog(frame, "open", FileDialog.LOAD);  
+				fd.setVisible(true);  
+				String strFile = fd.getDirectory() + fd.getFile();  
+				System.out.println(strFile);
+				String line = null;
+				String content = "";
+				if (strFile != null) {  
+					try {  
+						 pane.setText("");
+						 FileReader fileReader = new FileReader(strFile);
+						BufferedReader bufferedReader = new BufferedReader(fileReader); 
+						  while((line = bufferedReader.readLine()) != null) {
+								content = content + line + "\n";
+								// i = i + 1;
+								// document.insertString(i, line, style);
+								// document.insertString(i, "\n", style);
+							}   
+						document.insertString(0, content, style);
+						
+						 bufferedReader.close();      
+					} catch (Exception e) {  
+						System.out.println("open fail");  
+					}  
+				}  
+			  } 
+		} );
+
 
 
         //  StyleConstants.setForeground(style, Color.blue);
