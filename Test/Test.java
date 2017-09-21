@@ -71,6 +71,7 @@ public class Test  {
 		button.addActionListener(new java.awt.event.ActionListener(){ 
 		  public void actionPerformed(java.awt.event.ActionEvent evt) { 	  
 			//int lines = pane.getLineCount();
+			pane.setEditable(false);
 			try {
 			System.out.println(pane.getDocument().getText(0, pane.getDocument().getLength()) );
 			int i = pane.getDocument().getLength();
